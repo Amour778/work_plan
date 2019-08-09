@@ -1,0 +1,70 @@
+package com.workplan.bean;
+
+public class MailBean {
+
+		private Integer type;//类别:1-弱电
+		private String host;//服务器
+		private Integer port;//端口号
+		private Integer username;//邮箱账号
+		private String password;//邮箱密码
+		private String timeout;//时间延迟
+		private String from;//发送人
+		private String template;//模板
+		private String title;//备注
+		public Integer getType() {
+			return type;
+		}
+		public void setType(Integer type) {
+			this.type = type;
+		}
+		public String getHost() {
+			return host;
+		}
+		public void setHost(String host) {
+			this.host = host;
+		}
+		public Integer getPort() {
+			return port;
+		}
+		public void setPort(Integer port) {
+			this.port = port;
+		}
+		public Integer getUsername() {
+			return username;
+		}
+		public void setUsername(Integer username) {
+			this.username = username;
+		}
+		public String getPassword() {
+			return password;
+		}
+		public void setPassword(String password) {
+			this.password = password;
+		}
+		public String getTimeout() {
+			return timeout;
+		}
+		public void setTimeout(String timeout) {
+			this.timeout = timeout;
+		}
+		public String getFrom() {
+			return from;
+		}
+		public void setFrom(String from) {
+			this.from = from;
+		}
+		public String getTemplate() {
+			return template;
+		}
+		public void setTemplate(String template) {
+			this.template = template;
+		}
+		public String getTitle() {
+			return title;
+		}
+		public void setTitle(String title) {
+			this.title = title;
+		}
+		
+		
+	}

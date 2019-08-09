@@ -1,0 +1,47 @@
+package com.workplan.handler;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Controller;
+
+import com.workplan.bean.MailBean;
+import com.workplan.dao.MailDao;
+import com.workplan.tools.StringReplaceUtil;
+
+
+
+@Controller
+public class MailHandler {
+	ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+	MailDao mailDao = (MailDao) context.getBean("MailDao");
+	List<MailBean> mailList = new ArrayList<MailBean>();
+	StringReplaceUtil strReplace=new StringReplaceUtil();
+	
+	private Integer TYPE;
+    private String HOST;
+    private Integer PORT;
+    private Integer TIMEOUT;
+    private String USERNAME;
+    private String PASSWORD;
+    private String FORM;
+    private String TEMPLATE;
+    private String REMAKE;
+	
+	/**
+	 * 发送邮件
+	 * @param type 类型
+	 * @param data 替换模板的数据
+	 * @return
+	 */
+	public  String sendMail(int type,String[] data) {
+		String MESSAGE="";
+		mailList=mailDao.queryMailByType(type);
+		TYPE=mailList.get(0).getType();
+		return MESSAGE;
+	}
+	
+
+}

@@ -1,0 +1,341 @@
+package com.workplan.bean;
+
+import java.math.BigDecimal;
+
+public class WeakCurrentProjectsSimpleBean {
+	 
+	    //id
+	    private int id;
+	    //项目编码
+	    private String project_code;
+	    //项目区部
+	    private String project_area_department;
+	    //区部名称
+	    private String district_name;
+	    //项目分类
+	    private String item_classification;
+	    //客户名称
+	    private String ustomer_name;
+	    //计划启动时间
+	    private String planned_start_time;
+	    //预计完成时间
+	    private String planned_end_time;
+	    //项目名称
+	    private String project_name;
+	    //项目周期
+	    private String project_cycle;
+	    //项目报价
+	    private BigDecimal project_quotation;
+	    //项目负责人
+	    private String project_leader;
+	    //材料
+	    private BigDecimal material;
+	    //人工（外请）
+	    private BigDecimal labor;
+	    //固定资产分摊
+	    private BigDecimal allocation_of_fixed_assets;
+	    //其他项
+	    private BigDecimal other_items;
+	    //费用小计
+	    private BigDecimal subtotal_cost;
+	    //税率
+	    private BigDecimal simple_tax;
+	    //提交人
+	    private String submitter;
+	    
+	    //提交时间
+	    private String submission_time;
+	    //审核状态
+	    private int audit_status;
+	    //审核备注
+	    private String audit_info;
+	    //是否结单，0：false，1：true
+	    private int isclose;
+	    //可开票增专金额
+	    private BigDecimal special_vat_invoice_amount;
+	    //普票金额
+	    private BigDecimal ordinary_invoice_amount;
+	    //供应商抵扣税率
+	    private BigDecimal supplier_invoice_tax;
+	    //供应商开票抵税金额 = 可开票增专金额 / ( 1+ 供应商开票税率) *供应商开票税率
+	    private BigDecimal supplier_invoice;
+	    //预估毛利
+	    private BigDecimal predict_gross_profit;
+	    //预估毛利%
+	    private BigDecimal predict_gross_profit_per;
+	    //预测净利润
+	    private BigDecimal predict_net_profit;
+	    //预测净利润%
+	    private BigDecimal predict_net_profit_per;
+	    //更新说明
+	    private String edit_remark;
+		public int getId() {
+			return id;
+		}
+
+		public void setId(int id) {
+			this.id = id;
+		}
+
+		public String getProject_code() {
+			return project_code;
+		}
+
+		public void setProject_code(String projectCode) {
+			project_code = projectCode;
+		}
+
+		public String getProject_area_department() {
+			return project_area_department;
+		}
+
+		public void setProject_area_department(String projectAreaDepartment) {
+			project_area_department = projectAreaDepartment;
+		}
+
+		public String getDistrict_name() {
+			return district_name;
+		}
+
+		public void setDistrict_name(String districtName) {
+			district_name = districtName;
+		}
+
+		public String getItem_classification() {
+			return item_classification;
+		}
+
+		public void setItem_classification(String itemClassification) {
+			item_classification = itemClassification;
+		}
+
+		public String getUstomer_name() {
+			return ustomer_name;
+		}
+
+		public void setUstomer_name(String ustomerName) {
+			ustomer_name = ustomerName;
+		}
+
+		
+		public String getPlanned_start_time() {
+			return planned_start_time;
+		}
+
+		public void setPlanned_start_time(String plannedStartTime) {
+			planned_start_time = plannedStartTime;
+		}
+
+		public String getPlanned_end_time() {
+			return planned_end_time;
+		}
+
+		public void setPlanned_end_time(String plannedEndTime) {
+			planned_end_time = plannedEndTime;
+		}
+
+		public void setSubmission_time(String submissionTime) {
+			submission_time = submissionTime;
+		}
+
+		public String getProject_name() {
+			return project_name;
+		}
+
+		public void setProject_name(String projectName) {
+			project_name = projectName;
+		}
+
+		public String getProject_cycle() {
+			return project_cycle;
+		}
+
+		public void setProject_cycle(String projectCycle) {
+			project_cycle = projectCycle;
+		}
+
+
+
+		public BigDecimal getProject_quotation() {
+			return project_quotation;
+		}
+
+		public void setProject_quotation(BigDecimal projectQuotation) {
+			project_quotation = projectQuotation;
+		}
+
+		
+
+		public String getProject_leader() {
+			return project_leader;
+		}
+
+		public void setProject_leader(String projectLeader) {
+			project_leader = projectLeader;
+		}
+
+
+		public BigDecimal getMaterial() {
+			return material;
+		}
+
+		public void setMaterial(BigDecimal material) {
+			this.material = material;
+		}
+
+		public BigDecimal getLabor() {
+			return labor;
+		}
+
+		public void setLabor(BigDecimal labor) {
+			this.labor = labor;
+		}
+
+		public BigDecimal getAllocation_of_fixed_assets() {
+			return allocation_of_fixed_assets;
+		}
+
+		public void setAllocation_of_fixed_assets(BigDecimal allocationOfFixedAssets) {
+			allocation_of_fixed_assets = allocationOfFixedAssets;
+		}
+
+		public BigDecimal getOther_items() {
+			return other_items;
+		}
+
+		public void setOther_items(BigDecimal otherItems) {
+			other_items = otherItems;
+		}
+
+		public BigDecimal getSubtotal_cost() {
+			return subtotal_cost;
+		}
+
+		public void setSubtotal_cost(BigDecimal subtotalCost) {
+			subtotal_cost = subtotalCost;
+		}
+
+		
+
+		public BigDecimal getSimple_tax() {
+			return simple_tax;
+		}
+
+		public void setSimple_tax(BigDecimal simpleTax) {
+			simple_tax = simpleTax;
+		}
+
+		public String getSubmitter() {
+			return submitter;
+		}
+
+		public void setSubmitter(String submitter) {
+			this.submitter = submitter;
+		}
+
+		
+		public String getSubmission_time() {
+			return submission_time;
+		}
+
+		
+
+		public int getAudit_status() {
+			return audit_status;
+		}
+
+		public void setAudit_status(int auditStatus) {
+			audit_status = auditStatus;
+		}
+
+		public String getAudit_info() {
+			return audit_info;
+		}
+
+		public void setAudit_info(String auditInfo) {
+			audit_info = auditInfo;
+		}
+
+		public int getIsclose() {
+			return isclose;
+		}
+
+		public void setIsclose(int isclose) {
+			this.isclose = isclose;
+		}
+
+		public BigDecimal getPredict_gross_profit() {
+			return predict_gross_profit;
+		}
+
+		public void setPredict_gross_profit(BigDecimal predictGrossProfit) {
+			predict_gross_profit = predictGrossProfit;
+		}
+
+		public BigDecimal getPredict_gross_profit_per() {
+			return predict_gross_profit_per;
+		}
+
+		public void setPredict_gross_profit_per(BigDecimal predictGrossProfitPer) {
+			predict_gross_profit_per = predictGrossProfitPer;
+		}
+
+		public BigDecimal getPredict_net_profit() {
+			return predict_net_profit;
+		}
+
+		public void setPredict_net_profit(BigDecimal predictNetProfit) {
+			predict_net_profit = predictNetProfit;
+		}
+
+		public BigDecimal getPredict_net_profit_per() {
+			return predict_net_profit_per;
+		}
+
+		public void setPredict_net_profit_per(BigDecimal predictNetProfitPer) {
+			predict_net_profit_per = predictNetProfitPer;
+		}
+
+		public BigDecimal getSpecial_vat_invoice_amount() {
+			return special_vat_invoice_amount;
+		}
+
+		public void setSpecial_vat_invoice_amount(BigDecimal specialVatInvoiceAmount) {
+			special_vat_invoice_amount = specialVatInvoiceAmount;
+		}
+
+		public BigDecimal getOrdinary_invoice_amount() {
+			return ordinary_invoice_amount;
+		}
+
+		public void setOrdinary_invoice_amount(BigDecimal ordinaryInvoiceAmount) {
+			ordinary_invoice_amount = ordinaryInvoiceAmount;
+		}
+
+		public BigDecimal getSupplier_invoice_tax() {
+			return supplier_invoice_tax;
+		}
+
+		public void setSupplier_invoice_tax(BigDecimal supplierInvoiceTax) {
+			supplier_invoice_tax = supplierInvoiceTax;
+		}
+
+		public BigDecimal getSupplier_invoice() {
+			return supplier_invoice;
+		}
+
+		public void setSupplier_invoice(BigDecimal supplierInvoice) {
+			supplier_invoice = supplierInvoice;
+		}
+
+		public String getEdit_remark() {
+			return edit_remark;
+		}
+
+		public void setEdit_remark(String editRemark) {
+			edit_remark = editRemark;
+		}
+
+
+
+	}

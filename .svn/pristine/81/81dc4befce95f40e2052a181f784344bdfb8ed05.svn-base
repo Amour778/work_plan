@@ -1,0 +1,49 @@
+package com.workplan.handler;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.workplan.bean.WeakCurrentProjectsApprovaLogBean;
+import com.workplan.dao.WeakCurrentProjectsApprovaLogDao;
+import com.workplan.tools.GetDateTimeNow;
+import com.workplan.tools.ResultMessage;
+
+
+/**
+ * 审批历史记录
+ * @author 01059101
+ *
+ */
+@Controller
+public class WeakCurrentProjectsApprovaLogHandler {
+
+	ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+	WeakCurrentProjectsApprovaLogBean wcpaLogBean=new WeakCurrentProjectsApprovaLogBean();
+	List<WeakCurrentProjectsApprovaLogBean>  wcpaLogList = new ArrayList<WeakCurrentProjectsApprovaLogBean>();
+
+	WeakCurrentProjectsApprovaLogDao wcpaLogDao = (WeakCurrentProjectsApprovaLogDao) context.getBean("WeakCurrentProjectsApprovaLogDao");
+	
+	public void addWCPALog(String item_id,String item,String approval_sta,String approval_user,String remark){
+		if(wcpaLogDao.addWCPALog(item_id, item, GetDateTimeNow.getDateTime(), approval_sta, approval_user, remark)){
+			System.out.println("审核记录添加成功");
+		}else {
+			System.err.println("审核记录添加失败");
+		}
+			
+	}
+
+
+	@RequestMapping(value = "/queryWCPALogByItemId",produces="text/html;charset=UTF-8")
+	@ResponseBody
+	public String queryWCPALogByItemId(String item_id) {
+		wcpaLogList=wcpaLogDao.queryWCPALog(item_id);
+		return ResultMessage.ListtoLayuiTable(wcpaLogList.size(), wcpaLogList);
+	}
+	
+}

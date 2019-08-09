@@ -1,0 +1,4 @@
+#Thu Aug 01 16:43:26 CST 2019
+eclipse.preferences.version=1
+validator.Checked=WebRoot/WEB-INF/pages/static/module/vue.min.js,WebRoot/WEB-INF/pages/static/module/tableMerge/tableMerge.js,WebRoot/WEB-INF/pages/static/module/vue.js,WebRoot/WEB-INF/pages/static/module/index.js,WebRoot/WEB-INF/pages/static/module/notice/notice.js
+validator.Unchecked=

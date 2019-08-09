@@ -1,0 +1,86 @@
+package com.workplan.dao;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+
+import com.workplan.bean.MailBean;
+
+
+public class MailDao {
+	private JdbcTemplate jdbcTemplate;
+
+	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+		this.jdbcTemplate = jdbcTemplate;
+	}
+
+	/**
+	 * 数据模板
+	 * 
+	 * @author 01059101
+	 * 
+	 */
+	class MailMapper implements RowMapper<MailBean> {
+		public MailBean mapRow(ResultSet rs, int rowNum)
+				throws SQLException {
+			MailBean info = new MailBean();
+			info.setType(rs.getInt("type"));
+			info.setHost(rs.getString("host"));
+			info.setPort(rs.getInt("port"));
+			info.setUsername(rs.getInt("username"));
+			info.setPassword(rs.getString("password"));
+			info.setTimeout(rs.getString("timeout"));
+			info.setFrom(rs.getString("from"));
+			info.setTemplate(rs.getString("template"));
+			info.setTitle(rs.getString("title"));
+			return info;
+		}
+	}
+	class MailMapperNoPassword implements RowMapper<MailBean> {
+		public MailBean mapRow(ResultSet rs, int rowNum)
+				throws SQLException {
+			MailBean info = new MailBean();
+			info.setType(rs.getInt("type"));
+			info.setHost(rs.getString("host"));
+			info.setPort(rs.getInt("port"));
+			info.setUsername(rs.getInt("username"));
+			info.setTimeout(rs.getString("timeout"));
+			info.setFrom(rs.getString("from"));
+			info.setTemplate(rs.getString("template"));
+			info.setTitle(rs.getString("title"));
+			return info;
+		}
+	}
+	
+	/**
+	 * 返回包含密码且符合TYPE的数据
+	 * 
+	 * @return List<UserInfoBean>
+	 */
+	public List<MailBean> queryMailByType(int type) {
+		String sql = "select * from mail where type = ? ";
+		List<MailBean> Mail=jdbcTemplate.query(sql,new Object[]{type}, new MailMapper());
+		return Mail;
+	}
+
+	/**
+	 * 返回无密码且符合TYPE的数据
+	 * @return
+	 */
+	public List<MailBean> queryMailByTypeNoPassword(int type) {
+		String sql = "select type,host,port,username,timeout,from,template,title from mail where type = ? ";
+		List<MailBean> Mail=jdbcTemplate.query(sql,new Object[]{type}, new MailMapperNoPassword());
+		return Mail;
+	}
+	/**
+	 * 返回无密码且符合TYPE的数据
+	 * @return
+	 */
+	public List<MailBean> queryAllMailNoPassword() {
+		String sql = "select type,host,port,username,timeout,from,template,title from mail ";
+		List<MailBean> Mail=jdbcTemplate.query(sql, new MailMapperNoPassword());
+		return Mail;
+	}
+}

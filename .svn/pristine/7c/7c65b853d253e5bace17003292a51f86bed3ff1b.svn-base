@@ -1,0 +1,56 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8" %>
+<table id="show_wcp_files_table" lay-filter="show_wcp_files_table"></table>
+
+<script type="text/html" id="show_wcp_files_table_bar">
+<a class="layui-btn layui-btn-xs" lay-event="download" >下载</a>
+</script>
+<script type="text/javascript">
+	//模板取消锁定的密码为：a123a123
+layui.use(['layer','table','admin'],function() {
+    layer = layui.layer
+    ,table = layui.table
+    ,admin = layui.admin
+    ,$ = layui.jquery;
+    var project_code=admin.getTempData('project_code');
+  //执行渲染
+  table.render({
+	elem: '#show_wcp_files_table'
+	,loading:true
+	,url: 'WeakCurrentProjectsDetailFilesLists?project_code='+project_code
+	//,where: {type: 'selectAllWeb'}
+	,even:true
+	,cols: [[ //表头
+		{field: 'name', width:450,title: '名称'}
+		,{fixed: 'right', width:100, align:'center', toolbar: '#show_wcp_files_table_bar'}
+	]]
+  });
+  
+	//监听工具条
+	  table.on('tool(show_wcp_files_table)', function(obj){
+		  var data = obj.data;
+		  var layEvent = obj.event;
+		  if(layEvent === 'download'){
+			  time(this);
+			  window.location.href = "WeakCurrentProjectsDetailFilesListsDownLoad?filename="+data.name;
+		  }
+		});
+	  
+	})
+	var wait=10;
+	function time(o){
+	    if (wait==0) {
+	    	o.disabled=false;
+	    	o.className ="layui-btn layui-btn-xs";
+	    o.innerHTML="下载";
+	    wait=5;
+	}else{
+		o.disabled=true;
+		o.className +=" layui-btn-disabled";
+	    o.innerHTML=wait;
+	        wait--;
+	        setTimeout(function(){
+	            time(o)
+	        },1000)
+	    }
+	}
+</script>

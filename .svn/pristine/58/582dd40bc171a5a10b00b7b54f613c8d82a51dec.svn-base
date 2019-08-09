@@ -1,0 +1,407 @@
+package com.workplan.handler;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.shiro.SecurityUtils;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.workplan.bean.WeakCurrentProjectsDetailBean;
+import com.workplan.bean.WeakCurrentProjectsSimpleBean;
+import com.workplan.dao.WeakCurrentProjectsDetailDao;
+import com.workplan.dao.WeakCurrentProjectsSimpleDao;
+import com.workplan.tools.GsonUtil;
+import com.workplan.tools.ResultMessage;
+@Controller
+public class WeakCurrentProjectsSimpleHandler {
+	ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+	WeakCurrentProjectsSimpleDao weakSimpleDao = (WeakCurrentProjectsSimpleDao) context.getBean("WeakCurrentProjectsSimpleDao");
+	List<WeakCurrentProjectsSimpleBean> WeakCurrentProjectsSimpleList = new ArrayList<WeakCurrentProjectsSimpleBean>();
+	ResultMessage ResultMessage=new ResultMessage();
+	WeakCurrentProjectsDetailHandler wcpd=new WeakCurrentProjectsDetailHandler();
+	WeakCurrentProjectsApprovaLogHandler app_log=new WeakCurrentProjectsApprovaLogHandler();
+	
+	/**
+	 * 新增立项
+	 * @param info
+	 * @return
+	 */
+	@RequestMapping(value = "/addWeakCurrentProjectsSimple",produces="text/html;charset=UTF-8")
+	@ResponseBody
+	public String addWeakCurrentProjectsSimple(String info) {
+		String reString="";
+		System.out.println("info="+info);
+		if(info==null||info.equals("")){
+			return ResultMessage.errString(1, "后台未接收到需要提交的数据");
+		}
+		WeakCurrentProjectsSimpleBean bean = GsonUtil.parseJsonWithGson(info, WeakCurrentProjectsSimpleBean.class);
+		WeakCurrentProjectsSimpleBean historybean = GsonUtil.parseJsonWithGson(info, WeakCurrentProjectsSimpleBean.class);
+		bean.setSubmitter((String) SecurityUtils.getSubject().getPrincipal());//提交人
+		historybean.setSubmitter((String) SecurityUtils.getSubject().getPrincipal());//提交人
+		//RDWB-00075编号：根据最后一个项目编码生成新的项目编码
+		WeakCurrentProjectsSimpleList=weakSimpleDao.queryInfoDesc();
+		String RDWB="";
+		if(WeakCurrentProjectsSimpleList.size()==0){
+			RDWB="RDWB-00001";
+		}else {
+			RDWB=RDWB_Code(WeakCurrentProjectsSimpleList.get(0).getProject_code());
+		}
+		bean.setProject_code(RDWB);
+		//bean.setAudit_info("N");
+		historybean.setProject_code(RDWB);
+		try {
+			if(weakSimpleDao.insertWeakCurrentProjectsSimple(bean)){
+				app_log.addWCPALog(RDWB, "申请立项","1010", (String) SecurityUtils.getSubject().getPrincipal(), "N");
+				
+				//添加历史记录
+				if(weakSimpleDao.insertWeakCurrentProjectsSimpleHistory(historybean)){
+					reString=ResultMessage.MessageToJson(0, "立项添加成功");
+				}else {
+					reString=ResultMessage.MessageToJson(1, "立项添加成功，但是添加备份数据失败");
+				}
+			}else {
+				reString=ResultMessage.MessageToJson(1, "立项添加失败");
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			reString=ResultMessage.MessageToJson(1, "立项添加失败："+e.getMessage());
+		}
+		return reString;
+	}
+	
+
+	/**
+	 * 搜索：根据条件获取数据
+	 * @param SearchCondition
+	 * @param page
+	 * @param limit
+	 * @return
+	 */
+	@RequestMapping(value = "/queryWeakCurrentProjectsSimple",produces="text/html;charset=UTF-8")
+	@ResponseBody
+	public String queryWeakCurrentProjectsSimple(String SearchCondition,int page, int limit) {
+		System.out.println("SearchCondition="+SearchCondition);
+		if(SearchCondition==null){
+			System.out.println("SearchCondition==null");
+			SearchCondition="";
+		}
+		String arr[]=SearchCondition.split(",");
+		if(SearchCondition!=null&&SearchCondition!=""){
+			System.out.println("有"+arr.length+"个条件");
+		}else {
+			System.out.println(arr.length+"没有条件");
+		}
+		for(int a=0;a<arr.length;a++){
+			//System.out.println("arr[a]="+arr[a].toString());
+		}
+		ArrayList<String> AuditStatus = new ArrayList<String>();
+		ArrayList<String> ProjectCode = new ArrayList<String>();
+		for(int a=0;a<arr.length;a++){
+			if(arr[a].toString().indexOf("AuDiTStAtUs")!=-1){
+				AuditStatus.add(arr[a].split("\\|")[1]);//这里之所以用"\\|"，是因为"|"是特殊字符
+			}else if (arr[a].toString().indexOf("PrOjEcTcOde")!=-1) {
+				ProjectCode.add(arr[a].split("\\|")[1]);
+			}else if (arr[a].toString().indexOf("PrOjEcTcOde")!=-1) {
+				ProjectCode.add(arr[a].split("\\|")[1]);
+			}
+		}
+		String submitter = null;//提交人
+		if(SecurityUtils.getSubject().hasRole("wck_per_user")){//用户是否为普通的立项用户
+			submitter = (String) SecurityUtils.getSubject().getPrincipal();//提交人
+		}
+		int Counts= weakSimpleDao.queryAllInfoCountsBySearchCondition(AuditStatus, ProjectCode,submitter);
+		WeakCurrentProjectsSimpleList = weakSimpleDao.queryAllInfoWithFirstBySearchCondition(AuditStatus, ProjectCode, page, limit,submitter);
+		GsonUtil gsonUtil=new GsonUtil();
+		String str=gsonUtil.List2Json(WeakCurrentProjectsSimpleList);
+		System.out.println("str="+str);
+		return ResultMessage.ListtoLayuiTable(Counts, gsonUtil.List2Json(WeakCurrentProjectsSimpleList));
+	}
+
+	/**
+	 * 多选下拉框
+	 * @return 
+	 */
+	@RequestMapping(value = "/getWeakCurrentProjectsSimpleFormSelectsInfo",produces="text/html;charset=UTF-8")
+	@ResponseBody
+	public String getWeakCurrentProjectsSimpleFormSelectsInfo() {
+		System.out.println("/getPannramaMultiselect");
+		WeakCurrentProjectsSimpleList=weakSimpleDao.queryAllProjectName();
+		
+		String reString="";
+		//状态：默认不选中
+		reString+="{\"name\": \"审核状态\", \"type\": \"optgroup\"},";
+		reString+="{\"name\": \"待审核\", \"value\": \"AuDiTStAtUs|1010,AuDiTStAtUs|1020\",\"selected\":\"selected\"}" +
+				",{\"name\": \"已驳回\", \"value\": \"AuDiTStAtUs|1012,AuDiTStAtUs|1022\",\"selected\":\"selected\"}"+
+				",{\"name\": \"已立项\", \"value\": \"AuDiTStAtUs|1021\",\"selected\":\"\"}" +
+				",{\"name\": \"已撤项\", \"value\": \"AuDiTStAtUs|1030\",\"selected\":\"\"},";
+		
+
+		if(SecurityUtils.getSubject().hasRole("wck_per_user")){//用户是否为普通的立项用户
+			reString+="{\"name\": \"提交人\", \"type\": \"optgroup\"},";
+			reString+="{\"name\": \""+(String) SecurityUtils.getSubject().getPrincipal()+"\", \"value\": \"SuBmItTeR|"+(String) SecurityUtils.getSubject().getPrincipal()+"\",\"selected\":\"selected\",\"disabled\":\"disabled\"},";
+		}
+		//项目名称
+		reString+="{\"name\": \"项目名称\", \"type\": \"optgroup\"},";
+		for(int a= 0;a<WeakCurrentProjectsSimpleList.size();a++){
+			reString+="{\"name\": \""+WeakCurrentProjectsSimpleList.get(a).getProject_name()+"\", \"value\":\"PrOjEcTcOde|"+WeakCurrentProjectsSimpleList.get(a).getProject_code()+"\",\"selected\":\"\"},";
+		}
+		
+		reString="{\"code\":0,\"msg\":\"success\",\"data\":["+reString.substring(0, reString.length()-1)+"]}";
+		System.out.println(reString);
+		return reString;
+	}
+
+	/**
+	 * 根据project_code获取简单的完整项目数据
+	 * @return 
+	 */
+	@RequestMapping(value = "/queryProjectInfoByProjectCode",produces="text/html;charset=UTF-8")
+	@ResponseBody
+	public String queryProjectInfoByProjectCode(String project_code) {
+		System.out.println("/queryProjectInfoByProjectCode");
+		WeakCurrentProjectsSimpleList=weakSimpleDao.queryProjectInfoByProjectCode(project_code);
+		if(WeakCurrentProjectsSimpleList.size()==0){
+			return ResultMessage.MessageToJson(1, "无数据");
+		}else{	
+			return ResultMessage.ListToJson(0, WeakCurrentProjectsSimpleList);
+		}
+	}
+	/**
+	 * 根据project_code更新所有数据
+	 * @param info
+	 * @param project_code
+	 * @return
+	 * 通过project_code获取审批状态
+	 * 一、如果审批状态为“1021立项审批通过”，则判断是否修改了钱相关的数据
+	 * 	1.如果没有修改钱相关的数据，则不更改审批状态
+	 * 	2.如果修改了钱相关的数据，则更改审核状态为1010
+	 * 二、如果审批状态不为“1011立项审批通过”，则更改审核状态为1010
+	 */
+	@RequestMapping(value = "/updataWeakCurrentProjectsSimpleInfoByProjectCode",produces="text/html;charset=UTF-8")
+	@ResponseBody
+	public String updataWeakCurrentProjectsSimpleInfoByProjectCode(String info,String project_code) {
+		System.out.println("/updataWeakCurrentProjectsSimpleInfoByProjectCode");
+		WeakCurrentProjectsSimpleBean bean = GsonUtil.parseJsonWithGson(info, WeakCurrentProjectsSimpleBean.class);
+		bean.setSubmitter((String) SecurityUtils.getSubject().getPrincipal());
+		WeakCurrentProjectsSimpleList = weakSimpleDao.queryProjectInfoByProjectCode(project_code);
+		int audit_status=WeakCurrentProjectsSimpleList.get(0).getAudit_status();
+		System.out.println("audit_status="+audit_status+",project_code="+project_code);
+
+		System.out.println("(audit_status+'').equals('1021')="+(audit_status+"").equals("1021"));
+		if((audit_status+"").equals("1021")){
+			bean.setAudit_info("N");
+			bean.setAudit_status(1010);
+
+			bean.setAudit_status(WeakCurrentProjectsSimpleList.get(0).getAudit_status());
+			app_log.addWCPALog(project_code, "申请立项","1010", (String) SecurityUtils.getSubject().getPrincipal(), "更新内容");
+			if(weakSimpleDao.updataWeakCurrentProjectsSimpleInfoByProjectCode(bean, project_code)){
+				return ResultMessage.MessageToJson(0, "更新成功!");
+			}else {
+				return ResultMessage.MessageToJson(1, "更新失败!");
+			}
+		}else{
+			//如果有修改金额
+			System.out.println("项目报价"+(new BigDecimal(bean.getProject_quotation().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getProject_quotation().toString()));
+			System.out.println("材料"+(new BigDecimal(bean.getMaterial().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getMaterial().toString()));
+			System.out.println("人工（外请）"+(new BigDecimal(bean.getLabor().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getLabor().toString()));
+			System.out.println("固定资产分摊"+(new BigDecimal(bean.getAllocation_of_fixed_assets().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getAllocation_of_fixed_assets().toString()));
+			System.out.println("费用小计"+(new BigDecimal(bean.getOther_items().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getOther_items().toString()));
+			System.out.println("税率"+(new BigDecimal(bean.getSubtotal_cost().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getSubtotal_cost().toString()));
+			System.out.println("可开票增专金额"+(new BigDecimal(bean.getSimple_tax().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getSimple_tax().toString()));
+			System.out.println("普票金额"+(new BigDecimal(bean.getSpecial_vat_invoice_amount().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getSpecial_vat_invoice_amount().toString()));
+			System.out.println("供应商抵扣税率"+(new BigDecimal(bean.getSupplier_invoice_tax().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getSupplier_invoice_tax().toString()));
+			System.out.println("供应商开票抵税金额"+(new BigDecimal(bean.getSupplier_invoice().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getSupplier_invoice().toString()));
+			
+			if(!(new BigDecimal(bean.getProject_quotation().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getProject_quotation().toString())||//项目报价
+				!(new BigDecimal(bean.getMaterial().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getMaterial().toString())||//材料
+				!(new BigDecimal(bean.getLabor().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getLabor().toString())||//人工（外请）
+				!(new BigDecimal(bean.getAllocation_of_fixed_assets().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getAllocation_of_fixed_assets().toString())||//固定资产分摊
+				!(new BigDecimal(bean.getOther_items().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getOther_items().toString())||//其他项
+				!(new BigDecimal(bean.getSubtotal_cost().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getSubtotal_cost().toString())||//费用小计
+				!(new BigDecimal(bean.getSimple_tax().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getSimple_tax().toString())||//税率
+				!(new BigDecimal(bean.getSpecial_vat_invoice_amount().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getSpecial_vat_invoice_amount().toString())||//可开票增专金额
+				!(new BigDecimal(bean.getOrdinary_invoice_amount().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getOrdinary_invoice_amount().toString())||//普票金额
+				!(new BigDecimal(bean.getSupplier_invoice_tax().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getSupplier_invoice_tax().toString())||//供应商抵扣税率
+				!(new BigDecimal(bean.getSupplier_invoice().toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString().equals(WeakCurrentProjectsSimpleList.get(0).getSupplier_invoice().toString())//供应商开票抵税金额
+				
+			){
+				bean.setAudit_info("N");
+				bean.setAudit_status(1010);
+				app_log.addWCPALog(project_code, "申请立项","1010", (String) SecurityUtils.getSubject().getPrincipal(), "更新内容");
+				
+				
+				if(weakSimpleDao.updataWeakCurrentProjectsSimpleInfoByProjectCode(bean, project_code)){
+					return ResultMessage.MessageToJson(0, "更新成功!");
+				}else {
+					return ResultMessage.MessageToJson(1, "更新失败!");
+				}
+			}else{
+				audit_status = WeakCurrentProjectsSimpleList.get(0).getAudit_status();
+				bean.setAudit_info(WeakCurrentProjectsSimpleList.get(0).getAudit_info());
+				bean.setAudit_status(audit_status);
+				app_log.addWCPALog(project_code, "申请立项","1010", (String) SecurityUtils.getSubject().getPrincipal(), "更新内容");
+				if((audit_status+"").equals("1012")||(audit_status+"").equals("1022")){//用户更新数据，[更新的内容为非金额，审批的状态为驳回的状态]，故此处约定：更改其状态为待审核
+					bean.setAudit_status(1010);
+				}
+				if(weakSimpleDao.updataWeakCurrentProjectsSimpleInfoByProjectCode(bean, project_code)){
+					return ResultMessage.MessageToJson(0, "更新成功!");
+				}else {
+					return ResultMessage.MessageToJson(1, "更新失败!");
+				}
+			}
+		}
+	}
+	/**
+	 * 根据project_code更新审核信息
+	 * @return 
+	 */
+	@RequestMapping(value = "/updataWeakCurrentProjectsSimpleAuditStatusByProjectCode",produces="text/html;charset=UTF-8")
+	@ResponseBody
+	public String updataWeakCurrentProjectsSimpleAuditStatusByProjectCode(String audit_status,String audit_info,String project_code,BigDecimal cost_share) {
+		System.out.println("/updataWeakCurrentProjectsSimpleAuditStatusByProjectCode");
+		System.out.println("audit_status="+audit_status);
+		System.out.println("audit_info="+audit_info);
+		System.out.println("project_code="+project_code);
+		System.out.println("cost_share="+cost_share);
+
+		Map<String, String> returnStringMap = new HashMap<String, String>();
+		int mysql_approval_status= weakSimpleDao.WCPSAuditStatus(project_code);
+		returnStringMap=WCPApprovalStatusUtil.approvalStatusCheck(mysql_approval_status,Integer.parseInt(audit_status) );
+		if(returnStringMap.get("BOOLEAN").equals("false")){
+			return ResultMessage.MessageToJson(1, "审批失败!当前项目的审批节点为："+returnStringMap.get("INFO"));
+		}
+		//更新审核状态
+		if(weakSimpleDao.updataWeakCurrentProjectsSimpleAuditStatusByProjectCode(audit_status,audit_info, project_code)){
+			//如果是审核通过
+			if(audit_status.equals("1021")){
+				WeakCurrentProjectsDetailDao detailDao = (WeakCurrentProjectsDetailDao) context.getBean("WeakCurrentProjectsDetailDao");
+				Map<String ,String> map = new HashMap<String, String>();
+				WeakCurrentProjectsDetailHandler wcpdHandler = new WeakCurrentProjectsDetailHandler();
+				List<WeakCurrentProjectsDetailBean> WeakCurrentProjectsDetailList = new ArrayList<WeakCurrentProjectsDetailBean>();
+				WeakCurrentProjectsDetailList=detailDao.queryInfoByProjectCode(project_code);
+				if(WeakCurrentProjectsDetailList.size()==0){
+					try {
+						WeakCurrentProjectsSimpleList=weakSimpleDao.queryProjectInfoByProjectCode(project_code);
+						map=wcpd.addWeakCurrentProjectsDetail(project_code, cost_share);
+						if(map.get("sta").equals("true")){
+							map = new HashMap<String, String>();
+							map=wcpdHandler.updateWCPDetailInfoByProjectCode(project_code);
+							app_log.addWCPALog(project_code, "申请立项",
+									audit_status, (String) SecurityUtils.getSubject().getPrincipal(), audit_info);
+							if(map.get("sta").equals("true")){
+								return ResultMessage.MessageToJson(0, "审核成功!");
+							}else {
+								return ResultMessage.MessageToJson(1, "审核成功，添加立项数据到总表成功，但是更新'成本占比、税价全额 、管理成本2%、税额 6~11%、本金'等相关数据失败");
+							}
+						}else {
+							app_log.addWCPALog(project_code, "申请立项",audit_status, (String) SecurityUtils.getSubject().getPrincipal(), audit_info);
+							return ResultMessage.MessageToJson(1, "审核成功，但是添加立项数据到总表失败:"+map.get("info"));
+						}
+					} catch (Exception e) {
+						return ResultMessage.MessageToJson(1, "获取数据异常："+e.getMessage());
+					}
+					
+				}else{
+					map=wcpdHandler.updateWCPDetailInfoByProjectCode(project_code);
+					app_log.addWCPALog(project_code, "申请立项",audit_status, (String) SecurityUtils.getSubject().getPrincipal(), audit_info);
+					if(map.get("sta").equals("true")){
+						return ResultMessage.MessageToJson(0, "审核成功!");
+					}else {
+						return ResultMessage.MessageToJson(1, "审核成功，添加立项数据到总表成功，但是更新'成本占比、税价全额 、管理成本2%、税额 6~11%、本金'等相关数据失败");
+					}
+				}
+				
+			}else {
+				app_log.addWCPALog(project_code, "申请立项",
+						audit_status, (String) SecurityUtils.getSubject().getPrincipal(), audit_info);
+				return ResultMessage.MessageToJson(0, "审核成功!");
+			}
+		}else {
+			return ResultMessage.MessageToJson(1, "审核失败!");
+		}
+	}
+	
+
+	/**
+	 * 项目ID自动生成
+	 * @param RDWB
+	 * @return
+	 */
+	private String RDWB_Code(String RDWB) {
+		String returnString="";
+		String num=RDWB.split("-")[1];
+		int code = Integer.valueOf(num)+1;
+		for (int j = code-1; j < code ; j++,code++) {
+			returnString=String.valueOf(code);
+			for (int i = 0; i <num.length()- String.valueOf(code).length(); i++) {
+				returnString="0"+returnString;
+			}
+			if(weakSimpleDao.queryInfoDescToCode("RDWB-"+returnString).size()==0){
+				break;
+			}
+		}
+		return "RDWB-"+returnString;
+	}
+	
+
+	
+
+	/**
+	 * 搜索：根据条件获取数据
+	 * @param project_code
+	 * @return
+	 */
+	@RequestMapping(value = "/queryWeakCurrentProjectsSimpleToShow",produces="text/html;charset=UTF-8")
+	@ResponseBody
+	public String queryWeakCurrentProjectsSimpleToShow(String project_code) {
+		System.out.println("project_code="+project_code);
+		List<WeakCurrentProjectsSimpleBean> historyList = new ArrayList<WeakCurrentProjectsSimpleBean>();
+		historyList=weakSimpleDao.queryHistoryProjectInfoByProjectCode(project_code);
+		WeakCurrentProjectsSimpleList = weakSimpleDao.queryProjectInfoByProjectCode(project_code);
+		return ResultMessage.ListsToJson(0, WeakCurrentProjectsSimpleList, historyList);
+	}
+	
+
+	/**
+	 * 根据project_code撤项
+	 * @param project_code
+	 * @return
+	 * 撤项需要将相关的数据都删除：
+	 * 1.总表数据
+	 * 2.成本报销数据
+	 * 3.奖金分配数据
+	 */
+	@RequestMapping(value = "/revokeWeakCurrentProjectsSimpleByProjectCode",produces="text/html;charset=UTF-8")
+	@ResponseBody
+	public String revokeWeakCurrentProjectsSimpleByProjectCode(String project_code){
+		System.out.println("/revokeWeakCurrentProjectsSimpleByProjectCode");
+		try {
+			int deleteCount=weakSimpleDao.withdrawal_item(project_code);
+			System.out.println("项目编码'"+project_code+"'相关的数据条数为："+deleteCount);
+			if(deleteCount!=0){
+				if(weakSimpleDao.updataWeakCurrentProjectsSimpleAuditStatusByProjectCode("1030", "N", project_code)){
+					return ResultMessage.MessageToJson(0, "撤项成功");
+				}else {
+					return ResultMessage.MessageToJson(1, "更新项目状态为'已撤项'时失败，但删除相关数据成功");
+				}
+			}else {
+				if(weakSimpleDao.updataWeakCurrentProjectsSimpleAuditStatusByProjectCode("1030", "N", project_code)){
+					return ResultMessage.MessageToJson(0, "更新项目状态为'已撤项'成功，删除相关数据失败，项目编码'"+project_code+"'相关的数据可能不存在");
+				}else {
+					return ResultMessage.MessageToJson(0, "更新项目状态为'已撤项'失败，删除相关数据失败，项目编码'"+project_code+"'相关的数据可能不存在");
+				}
+			}
+		} catch (Exception e) {
+			return ResultMessage.MessageToJson(1, "删除异常:"+e.getMessage());
+		}
+		
+		
+	}
+}

@@ -1,0 +1,183 @@
+package com.workplan.handler;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Controller;
+
+import com.workplan.bean.MailBean;
+import com.workplan.bean.UserInfoBean;
+import com.workplan.bean.WeakCurrentProjectsApprovaLogBean;
+import com.workplan.bean.WeakCurrentProjectsSimpleBean;
+import com.workplan.dao.MailDao;
+import com.workplan.dao.UserInfoDao;
+import com.workplan.dao.WeakCurrentProjectsApprovaLogDao;
+import com.workplan.dao.WeakCurrentProjectsSimpleDao;
+import com.workplan.tools.SendEMailUtil;
+import com.workplan.tools.StringReplaceUtil;
+
+@Controller
+public class MailHandler {
+	ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+	MailDao mailDao = (MailDao) context.getBean("MailDao");
+	List<MailBean> mailList = new ArrayList<MailBean>();
+	StringReplaceUtil strReplace=new StringReplaceUtil();
+
+	WeakCurrentProjectsApprovaLogBean wcpaLogBean=new WeakCurrentProjectsApprovaLogBean();
+	List<WeakCurrentProjectsApprovaLogBean>  wcpaLogList = new ArrayList<WeakCurrentProjectsApprovaLogBean>();
+
+	UserInfoDao userDao = (UserInfoDao) context.getBean("UserInfoDao");
+	WeakCurrentProjectsSimpleDao weakSimpleDao = (WeakCurrentProjectsSimpleDao) context.getBean("WeakCurrentProjectsSimpleDao");
+	WeakCurrentProjectsApprovaLogDao wcpaLogDao = (WeakCurrentProjectsApprovaLogDao) context.getBean("WeakCurrentProjectsApprovaLogDao");
+
+	List<UserInfoBean> userList = new ArrayList<UserInfoBean>();
+	List<WeakCurrentProjectsSimpleBean> weakSimpleList = new ArrayList<WeakCurrentProjectsSimpleBean>();
+	
+	
+	/**
+	 * 调用通用发送邮件工具类发送邮件
+	 * @param mail_type 邮件类型ID
+	 * @param mail_templateid 邮件模板ID
+	 * @param mail_message 邮件内容
+	 * @param user_mail_address 收件人地址
+	 * @return Map<String, String> 
+	 */
+	private  Map<String, String> sendMail(int mail_type,int mail_templateid,String[] mail_message,List<String> user_mail_address) {
+		Map<String, String> MESSAGE=new HashMap<String, String>();
+		List<MailBean> mailList=mailDao.queryMailByType(mail_type, mail_templateid);
+		System.out.println("获取到的邮件模板数据长度为"+mailList.size());
+		String mail_protocol;
+		String mail_host;
+		int mail_port;
+		String mail_auth;
+		String mail_ssl;
+		String mail_debug;
+		String mail_from;
+		String mail_password;
+		String mail_title;
+		String mail_template;
+		try {
+			mail_protocol=mailList.get(0).getMail_protocol();
+			mail_host=mailList.get(0).getMail_host();
+			mail_port=mailList.get(0).getMail_port();
+			mail_auth=mailList.get(0).getMail_auth();
+			mail_ssl=mailList.get(0).getMail_ssl();
+			mail_debug=mailList.get(0).getMail_debug();
+			mail_from=mailList.get(0).getMail_from();
+			mail_password=mailList.get(0).getMail_password();
+			mail_title=mailList.get(0).getMail_title();
+			mail_template=mailList.get(0).getMail_template();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			MESSAGE.put("code", "1");
+			MESSAGE.put("info", "获取发件模板错误："+e.getMessage());
+			return MESSAGE;
+		}
+		try {
+			MESSAGE=SendEMailUtil.sendMail(mail_protocol, mail_host, mail_port, mail_auth, mail_ssl, mail_debug, mail_from, mail_password, mail_title, mail_template, user_mail_address, mail_message);
+			return MESSAGE;
+		} catch (AddressException e) {
+			e.printStackTrace();
+			MESSAGE.put("code", "1");
+			MESSAGE.put("info", "发送邮件时发生错误："+e.getMessage());
+			return MESSAGE;
+		} catch (MessagingException e) {
+			e.printStackTrace();
+			MESSAGE.put("code", "1");
+			MESSAGE.put("info", "发送邮件时发生错误："+e.getMessage());
+			return MESSAGE;
+		}
+	}
+	
+	/**
+	 * WCP弱电项目发送邮件
+	 * @param approval_sta
+	 */
+	public Map<String, String> sendWCPEMail(String item_id,String approval_sta) {
+		Map<String, String> MESSAGE=new HashMap<String, String>();
+		if(approval_sta.equals("NULL")){
+			MESSAGE.put("code", "1");
+			MESSAGE.put("info", "无需发件");
+			System.out.println(MESSAGE);
+			return MESSAGE;
+		}
+		//开始发送邮件
+		String mailString=WCPApprovalStatusUtil.approvalStatusCodeDetermineWhoNeedsToBeNotified(Integer.parseInt(approval_sta));
+		String user_role=mailString.split(",")[0];// 用户角色代码
+		int mail_templateid=Integer.parseInt(mailString.split(",")[1]);// 邮件模板编码
+		//通过项目ID获取项目内容：项目ID，项目名称，项目责任人，项目所属部门
+		/*
+		 *1004	弱电-普通立项用户
+		 *1005	弱电-管理员
+		 *1006	弱电-财务
+		 *1007	弱电-人资
+		 *1010	弱电-大区负责人
+		 *1011	弱电-BOSS 
+		 */
+		List<String> user_mail_address = new ArrayList<String>();
+		weakSimpleList=weakSimpleDao.queryProjectInfoByProjectCode(item_id);
+		System.out.println("发送邮件=>weakSimpleList的大小为："+weakSimpleList.size());
+		String project_name = null;
+		try {
+			project_name=weakSimpleList.get(0).getProject_name();
+		} catch (Exception e) {
+			System.out.println("发送邮件=>获取项目名称失败："+e.getMessage());
+		}
+		System.out.println("发送邮件=>获取到的项目名称："+project_name);
+		if(user_role.equals("NULL")){
+			System.out.println("项目编码："+item_id+"当前审批状态码："+approval_sta+"不需要发送邮件");
+			//NULL则不发送邮件
+		}else if(user_role.equals("1004")){
+			//用户角色代码为普通立项用户，则搜索项目责任人
+			userList = userDao.queryAll(weakSimpleList.get(0).getProject_leader());
+			try {
+				user_mail_address.add(userList.get(0).getUser_email());
+			} catch (Exception e) {
+				System.out.println("发送邮件=>用户角色代码为普通立项用户，获取项目责任人邮箱地址失败："+e.getMessage());
+			}
+			
+		}else if(user_role.equals("1010")){
+			//用户角色代码为大区负责人，则搜索项目的所属部门，再通过所属部门获取其大区责任人:userinfo表中的wcp_head是否大区负责人，默认否:'N'
+			String wcp_area=null;
+			try {
+				wcp_area=weakSimpleList.get(0).getProject_area_department();
+				System.out.println("项目所属大区："+wcp_area);
+			} catch (Exception e) {
+				System.out.println("发送邮件=>获取项目所属大区失败："+e.getMessage());
+			}
+			
+			try {
+				userList = userDao.queryWCPHeadByWCPArea(wcp_area);
+				user_mail_address.add(userList.get(0).getUser_email());
+			} catch (Exception e) {
+				System.out.println("发送邮件=>用户角色代码为大区负责人，获取项目责任人邮箱地址失败："+e.getMessage());
+			}
+		}else{
+			//用户角色代码为其他，则获取拥有此角色的用户邮箱地址
+			userList = userDao.queryUserByUserRole(user_role);
+			//根据返回的用户，插入需要接收的人的邮箱
+			for (int i = 0; i < userList.size(); i++) {
+				if(userList.get(i).getUser_email()!=null&&!userList.get(i).getUser_email().equals(""))
+					user_mail_address.add(userList.get(i).getUser_email());
+			}
+		}
+		if(user_mail_address.size()!=0){
+			System.out.println("准备发送邮件");
+			String[] mail_message={item_id,project_name};
+			MESSAGE=sendMail(1, mail_templateid, mail_message,user_mail_address);
+		}else {
+			MESSAGE.put("code", "1");
+			MESSAGE.put("info", "收件人列表为空，发送邮件失败。"+userList.size());
+		}
+		System.out.println(MESSAGE);
+		return MESSAGE;
+	}
+
+}

@@ -1,0 +1,295 @@
+package com.workplan.handler;
+
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.apache.shiro.authz.annotation.RequiresUser;
+import org.apache.shiro.subject.Subject;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.workplan.tools.ResultMessage;
+
+@Controller
+@SuppressWarnings("unused")
+public class PagesHandler {
+	@RequestMapping("/login")
+	private String list() {
+		System.out.println("login界面");
+		return "login";
+	}
+
+	@RequestMapping("/main")
+	private String main() {
+		System.out.println("main界面");
+		return "main";
+	}
+
+	@RequestMapping("/index")
+	private String index() {
+		System.out.println("index界面");
+		return "index";
+	}
+	@RequestMapping("/home/console")
+	private String home_console() {
+		System.out.println("/home/console界面");
+		return "/home/console";
+	}
+
+	@RequestMapping("/system/userinfo")
+	private String system_userinfo() {
+		System.out.println("/system/userinfo界面");
+		return "/system/userinfo";
+	}
+	@RequestMapping("/system/role")
+	private String system_role() {
+		System.out.println("/system/role界面");
+		return "/system/role";
+	}
+	@RequestMapping("/system/rolepermission")
+	private String system_rolepermission() {
+		System.out.println("/system/rolepermission界面");
+		return "/system/rolepermission";
+	}
+	@RequestMapping("/system/authorities")
+	private String system_authorities() {
+		System.out.println("/system/authorities界面");
+		return "/system/authorities";
+	}
+	@RequestMapping("/tpl/add_edit_user")
+	private String tpl_add_edit_user() {
+		System.out.println("/tpl/add_edit_user界面");
+		return "/tpl/add_edit_user";
+	}
+	@RequestMapping("/tpl/add_edit_role")
+	private String tpl_add_edit_role() {
+		System.out.println("/tpl/add_edit_role界面");
+		return "/tpl/add_edit_role";
+	}
+	@RequestMapping("/tpl/add_edit_permission")
+	private String tpl_add_edit_permission() {
+		System.out.println("/tpl/add_edit_permission界面");
+		return "/tpl/add_edit_permission";
+	}
+	@RequestMapping("/tpl/edit_user_role")
+	private String tpl_edit_user_role() {
+		System.out.println("/tpl/edit_user_role界面");
+		return "/tpl/edit_user_role";
+	}
+	@RequestMapping("/system/permission")
+	private String system_permission() {
+		System.out.println("/system/permission界面");
+		return "/system/permission";
+	}
+	@RequestMapping("/tpl/theme")
+	private String tpl_theme() {
+		System.out.println("/tpl/theme界面");
+		return "/tpl/theme";
+	}
+
+
+	@RequestMapping("/tpl/password")
+	private String tpl_password() {
+		System.out.println("/tpl/password界面");
+		return "/tpl/password";
+	}
+
+	@RequestMapping("/tpl/message")
+	private String tpl_message() {
+		System.out.println("/tpl/message界面");
+		return "/tpl/message";
+	}
+
+	@RequestMapping("/system/user_form")
+	private String system_user_form() {
+		System.out.println("/system/user_form界面");
+		return "/system/user_form";
+	}
+
+	@RequestMapping("/system/login_record")
+	private String system_login_record() {
+		System.out.println("/system/login_record界面");
+		return "/system/login_record";
+	}
+	
+	
+	
+	
+	//**********************框架外界面***********************************//
+	
+
+	@RequestMapping("/function_page/panorama")
+	private String function_page_panorama() {
+		System.out.println("/function_page/panorama工作全景项目--二级事项界面");
+		return "/function_page/panorama";
+	}
+	@RequestMapping("/function_page/workitemfirst")
+	private String function_workitemfirst() {
+		System.out.println("/function_page/workitemfirst工作全景项目--一级事项界面");
+		return "/function_page/workitemfirst";
+	}
+
+	@RequestMapping("/function_page/templets")
+	private String function_templets() {
+		System.out.println("/function_page/templets通用-模板下载界面");
+		return "/function_page/templets";
+	}
+	
+	@RequestMapping("/tpl/add_panorama")
+	private String tpl_add_panorama() {
+		System.out.println("/tpl/add_panorama工作全景项目-添加工作事项界面");
+		return "/tpl/add_panorama";
+	}
+	@RequestMapping("/tpl/addstep")
+	private String tpl_addstep() {
+		System.out.println("/tpl/addstep工作全景项目-对未开始和进行中的事项进行添加/更新步骤界面");
+		return "/tpl/addstep";
+	}
+	@RequestMapping("/tpl/edit_panorama")
+	private String tpl_edit_panorama() {
+		System.out.println("/tpl/edit_panorama工作全景项目-修改工作内容界面");
+		return "/tpl/edit_panorama";
+	}
+	@RequestMapping("/tpl/pannrama_detail")
+	private String tpl_pannrama_detail() {
+		System.out.println("/tpl/pannrama_detail工作全景项目-展示工作内容进度界面");
+		return "/tpl/pannrama_detail";
+	}
+	@RequestMapping("/tpl/progress")
+	private String tpl_progress() {
+		System.out.println("/tpl/progress弱电项目项目进度界面");
+		return "/tpl/progress";
+	}
+	@RequestMapping("/function_page/wcp/weak_current_projects_summary")
+	private String weak_current_projects_summary() {
+		System.out.println("/function_page/wcp/weak_current_projects_summary弱电项目主页面-总表界面");
+		return "/function_page/wcp/weak_current_projects_summary";
+	}
+	@RequestMapping("/function_page/wcp/weak_current_project")
+	private String weak_current_project() {
+		System.out.println("/function_page/wcp/weak_current_project弱电项目主页面-立项界面");
+		return "/function_page/wcp/weak_current_project";
+	}
+	@RequestMapping("/tpl/wcp/add_edit_weak_current_project")
+	private String tpl_add_edit_weak_current_project() {
+		System.out.println("/tpl/wcp/add_edit_weak_current_project弱电项目添加修改立项数据界面");
+		return "/tpl/wcp/add_edit_weak_current_project";
+	}
+	@RequestMapping("/tpl/wcp/update_wcp_progress")
+	private String tpl_update_wcp_progress() {
+		System.out.println("/tpl/wcp/update_wcp_progress界面");
+		return "/tpl/wcp/update_wcp_progress";
+	}
+	@RequestMapping("/function_page/wcp/weak_current_project_actual_expenditure")
+	private String function_page_weak_current_project_actual_expenditure() {
+		System.out.println("/function_page/wcp/weak_current_project_actual_expenditure弱电项目主页面-实际开支报销界面");
+		return "/function_page/wcp/weak_current_project_actual_expenditure";
+	}
+	@RequestMapping("/tpl/wcp/add_wcp_actual_expenditure")
+	private String tpl_add_wcp_actual_expenditure() {
+		System.out.println("/tpl/wcp/add_wcp_actual_expenditure添加弱电项目实际开支报销界面");
+		return "/tpl/wcp/add_wcp_actual_expenditure";
+	}
+	@RequestMapping("/tpl/wcp/edit_wcp_actual_expenditure")
+	private String tpl_edit_wcp_actual_expenditure() {
+		System.out.println("/tpl/wcp/edit_wcp_actual_expenditure编辑弱电项目实际开支报销界面");
+		return "/tpl/wcp/edit_wcp_actual_expenditure";
+	}
+	@RequestMapping("/tpl/wcp/add_wcp_bonus_shares")
+	private String tpl_add_wcp_bonus_shares() {
+		System.out.println("/tpl/wcp/add_wcp_bonus_shares添加弱电项目弱电项目个人奖金分配界面");
+		return "/tpl/wcp/add_wcp_bonus_shares";
+	}
+	@RequestMapping("/tpl/wcp/pending_audit_wcp_bonus_shares")
+	private String tpl_pending_audit_wcp_bonus_shares() {
+		System.out.println("/tpl/wcp/pending_audit_wcp_bonus_shares审核弱电项目个人奖金分配界面");
+		return "/tpl/wcp/pending_audit_wcp_bonus_shares";
+	}
+	@RequestMapping("/tpl/wcp/show_wcp_bonus_shares")
+	private String tpl_show_wcp_bonus_shares() {
+		System.out.println("/tpl/wcp/show_wcp_bonus_shares显示弱电项目个人奖金分配界面");
+		return "/tpl/wcp/show_wcp_bonus_shares";
+	}
+	@RequestMapping("/tpl/wcp/pending_audit_wcp_summary")
+	private String tpl_pending_audit_wcp_summary() {
+		System.out.println("/tpl/wcp/pending_audit_wcp_summary审核弱电项目界面");
+		return "/tpl/wcp/pending_audit_wcp_summary";
+	}
+	@RequestMapping("/tpl/wcp/show_wcp_summary")
+	private String tpl_show_wcp_summary() {
+		System.out.println("/tpl/wcp/show_wcp_summary显示弱电项目所有内容界面");
+		return "/tpl/wcp/show_wcp_summary";
+	}
+
+	@RequestMapping("/function_page/wechat_edianzu_information_gathering")
+	private String function_page_wechat_edianzu_information_gathering() {
+		System.out.println("/function_page/wechat_edianzu_information_gathering易点租信息收集界面");
+		return "/function_page/wechat_edianzu_information_gathering";
+	}
+	@RequestMapping("/tpl/show_wechat_edianzu_img")
+	private String tpl_show_wechat_edianzu_img() {
+		System.out.println("/tpl/show_wechat_edianzu_img显示易点租图片界面");
+		return "/tpl/show_wechat_edianzu_img";
+	}
+	@RequestMapping("/tpl/wcp/show_wcp_simple")
+	private String tpl_show_wcp_simple() {
+		System.out.println("/tpl/wcp/show_wcp_simple显示弱电项目立项内容界面");
+		return "/tpl/wcp/show_wcp_simple";
+	}
+	@RequestMapping("/tpl/wcp/show_wcp_files")
+	private String tpl_show_wcp_files() {
+		System.out.println("/tpl/wcp/show_wcp_files显示弱电项目上传的文件界面");
+		return "/tpl/wcp/show_wcp_files";
+	}
+	@RequestMapping("/tpl/wcp/pending_wcp_actual_expenditure")
+	private String tpl_pending_wcp_actual_expenditure() {
+		System.out.println("/tpl/wcp/pending_wcp_actual_expenditure审核弱电项目实际开支报销界面");
+		return "/tpl/wcp/pending_wcp_actual_expenditure";
+	}
+	@RequestMapping("/tpl/wcp/show_wcp_actual_expenditure")
+	private String tpl_show_wcp_actual_expenditure() {
+		System.out.println("/tpl/wcp/show_wcp_actual_expenditure显示弱电项目实际开支报销界面");
+		return "/tpl/wcp/show_wcp_actual_expenditure";
+	}
+
+	@RequestMapping("/tpl/demo")
+	private String tpl_demo() {
+		System.out.println("/tpl/demo界面");
+		return "/tpl/demo";
+	}
+	@RequestMapping("/tpl/wcp/show_wcp_approva_log")
+	private String tpl_show_wcp_approva_log() {
+		System.out.println("/tpl/wcp/show_wcp_approva_log显示弱电项目审核记录界面");
+		return "/tpl/wcp/show_wcp_approva_log";
+	}
+	@RequestMapping("/tpl/wcp/add_reminder_date")
+	private String tpl_add_reminder_date() {
+		System.out.println("/tpl/wcp/add_reminder_date申请弱电项目审核质保金回款界面");
+		return "/tpl/wcp/add_reminder_date";
+	}
+
+	@RequestMapping("/tpl/wcp/pending_reminder_date")
+	private String tpl_pending_reminder_date() {
+		System.out.println("/tpl/wcp/pending_reminder_date审核弱电项目质保金回款界面");
+		return "/tpl/wcp/pending_reminder_date";
+	}
+	
+	/*
+	 * 
+	 * Subject subject = SecurityUtils.getSubject();
+	@RequestMapping("/tpl/wcp/show_wcp_reimbursement")
+	private String tpl_show_wcp_reimbursement() {
+		if(subject.hasRole("wck_per_user")){
+			System.out.println("/tpl/wcp/show_wcp_reimbursement显示日常经费报销单界面");
+			return "/tpl/wcp/show_wcp_reimbursement";
+		}else {
+			System.out.println("显示日常经费报销单界面但是无权限");
+			return "unauthorized";
+		}
+	}*/
+	@RequestMapping("/tpl/wcp/print_wcp_reimbursement")
+	private String tpl_print_wcp_reimbursement() {
+		System.out.println("/tpl/wcp/print_wcp_reimbursement显示日常经费报销单界面");
+		return "/tpl/wcp/print_wcp_reimbursement";
+	}
+}

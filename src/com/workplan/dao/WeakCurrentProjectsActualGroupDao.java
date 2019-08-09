@@ -1,0 +1,188 @@
+package com.workplan.dao;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+
+import com.workplan.bean.WeakCurrentProjectsActualGroupBean;
+import com.workplan.tools.GetDateTimeNow;
+
+public class WeakCurrentProjectsActualGroupDao {
+	private JdbcTemplate jdbcTemplate;
+
+	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+		this.jdbcTemplate = jdbcTemplate;
+	}
+
+	
+	/**
+	 * 数据模板：所有数据
+	 * @author 01059101
+	 *
+	 */
+	class WeakCurrentProjectsActualGroupBeanAllMapper implements RowMapper<WeakCurrentProjectsActualGroupBean> {
+		public WeakCurrentProjectsActualGroupBean mapRow(ResultSet rs, int rowNum)
+				throws SQLException {
+			WeakCurrentProjectsActualGroupBean info = new WeakCurrentProjectsActualGroupBean();
+			info.setGroup_id(rs.getString("group_id"));
+			info.setProject_code(rs.getString("project_code"));
+			info.setProject_name(rs.getString("project_name"));
+			info.setCost_department(rs.getString("cost_department"));
+			info.setAmount_in_original_currency(rs.getString("amount_in_original_currency"));
+			info.setProposer(rs.getString("proposer"));
+			info.setDate_of_application(rs.getString("date_of_application"));
+			info.setThe_last_time(rs.getString("the_last_time"));
+			info.setApproval_finsh(rs.getString("approval_finsh"));
+			info.setRemark(rs.getString("remark"));
+			return info;
+		}
+	}
+
+	/**
+	 * 数据模板：组审批完成状态
+	 * @author 01059101
+	 *
+	 */
+	class WeakCurrentProjectsActualGroupBeanSimapleMapper implements RowMapper<WeakCurrentProjectsActualGroupBean> {
+		public WeakCurrentProjectsActualGroupBean mapRow(ResultSet rs, int rowNum)
+				throws SQLException {
+			WeakCurrentProjectsActualGroupBean info = new WeakCurrentProjectsActualGroupBean();
+			info.setGroup_id(rs.getString("group_id"));
+			info.setProject_code(rs.getString("project_code"));
+			info.setProject_name(rs.getString("project_name"));
+			info.setApproval_finsh(rs.getString("approval_finsh"));
+			return info;
+		}
+	}
+	/**
+	 * 数据模板：组审批完成状态
+	 * @author 01059101
+	 *
+	 */
+	class WeakCurrentProjectsActualGroupBeanIDMapper implements RowMapper<WeakCurrentProjectsActualGroupBean> {
+		public WeakCurrentProjectsActualGroupBean mapRow(ResultSet rs, int rowNum)
+				throws SQLException {
+			WeakCurrentProjectsActualGroupBean info = new WeakCurrentProjectsActualGroupBean();
+			info.setGroup_id(rs.getString("group_id"));
+			info.setProject_code(rs.getString("project_code"));
+			info.setApproval_finsh(rs.getString("approval_finsh"));
+			return info;
+		}
+	}
+
+
+	/**
+	 * 添加报销组数据
+	 * @param project_code
+	 * @param cost_department
+	 * @param amount_in_original_currency
+	 * @param proposer
+	 * @param the_last_time
+	 * @param approval_finsh
+	 * @return
+	 */
+	public boolean insertActualFroup(String group_id,String project_code, String cost_department, String amount_in_original_currency, 
+			String proposer, String the_last_time) {
+		String v_sql = "INSERT INTO wcp_actual_group (group_id, project_code, cost_department, amount_in_original_currency, proposer, date_of_application, the_last_time, approval_finsh) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+		return jdbcTemplate.update(v_sql, new Object[]{group_id, project_code, 
+				cost_department, amount_in_original_currency, proposer, GetDateTimeNow.getDateTime(), the_last_time,"N"})==1;
+	}
+
+	
+
+	/**
+	 * 根据项目ID获取所有报销组
+	 * @param project_code
+	 * @return
+	 */
+	public List<WeakCurrentProjectsActualGroupBean> querySimpleInfoWithProjectCode(String project_code) {
+		String sql = "SELECT " +
+		"wcp_actual_group.group_id," +
+		"wcp_actual_group.project_code," +
+		"wcp_actual_group.cost_department," +
+		"wcp_actual_group.amount_in_original_currency," +
+		"wcp_actual_group.proposer," +
+		"wcp_actual_group.date_of_application," +
+		"wcp_actual_group.the_last_time," +
+		"wcp_actual_group.approval_finsh," +
+		"wcp_actual_group.remark," +
+		"weak_current_projects_simple.project_name " +
+		"FROM " +
+		"wcp_actual_group ," +
+		"weak_current_projects_simple "+
+		"WHERE " +
+		"wcp_actual_group.project_code = weak_current_projects_simple.project_code " +
+		"And  wcp_actual_group.project_code = ?";
+		System.out.println(sql);
+		return jdbcTemplate.query(sql, new Object[]{project_code}, new WeakCurrentProjectsActualGroupBeanSimapleMapper());
+	}
+
+	/**
+	 * 根据组ID获取所有报销组信息
+	 * @param group_id
+	 * @return
+	 */
+	public List<WeakCurrentProjectsActualGroupBean> queryJustGroupInfoByGroupId(String group_id) {
+		String sql = "SELECT *  FROM wcp_actual_group  WHERE group_id = ?";
+		System.out.println(sql);
+		return jdbcTemplate.query(sql, new Object[]{group_id}, new WeakCurrentProjectsActualGroupBeanIDMapper());
+	}
+
+	
+
+	
+
+
+	/**
+	 * 根据组ID，更新'组内是否审批完成'状态
+	 * @param approval_finsh
+	 * @param group_id
+	 * @return
+	 */
+	public boolean updataWCPAGApprovalFinshByActualId(String approval_finsh,String group_id) {
+		String sql = "UPDATE wcp_actual_group set approval_finsh = ?  where group_id = ? ";
+		System.out.println(sql);
+		return jdbcTemplate.update(sql, new Object[] {approval_finsh,group_id}) == 1;
+	}
+
+	/**
+	 * 根据组ID，更新'是否最后一次报销'状态
+	 * @param the_last_time
+	 * @param group_id
+	 * @return
+	 */
+	public boolean updataWCPAGTheLastTimeByActualId(String the_last_time,String remark, String group_id) {
+		String sql = "UPDATE wcp_actual_group set the_last_time= ? , remark = ? where group_id = ? ";
+		return jdbcTemplate.update(sql, new Object[] {the_last_time,remark,group_id }) == 1;
+	}
+	
+	/**
+	 * 根据项目ID，获取是否存在最后一次报销的数据
+	 * @param project_code
+	 * @return
+	 */
+	public int queryIsOrNotTheLastTimeByProjectCode(String project_code) {
+		String sql = "SELECT " +
+		"wcp_actual_group.group_id," +
+		"wcp_actual_group.project_code," +
+		"wcp_actual_group.cost_department," +
+		"wcp_actual_group.amount_in_original_currency," +
+		"wcp_actual_group.proposer," +
+		"wcp_actual_group.date_of_application," +
+		"wcp_actual_group.the_last_time," +
+		"wcp_actual_group.approval_finsh," +
+		"wcp_actual_group.remark," +
+		"weak_current_projects_simple.project_name " +
+		"FROM " +
+		"wcp_actual_group ," +
+		"weak_current_projects_simple "+
+		"WHERE " +
+		"wcp_actual_group.project_code = weak_current_projects_simple.project_code " +
+		"And wcp_actual_group.project_code = ? And wcp_actual_group.the_last_time ='Y'";
+		System.out.println(sql);
+		return jdbcTemplate.query(sql, new Object[]{(project_code)}, new WeakCurrentProjectsActualGroupBeanAllMapper()).size();
+	}
+}

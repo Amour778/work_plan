@@ -1,0 +1,175 @@
+package com.workplan.bean;
+
+import java.math.BigDecimal;
+/**
+ * 成本报销bean
+ * @author 01059101
+ *
+ */
+
+public class WeakCurrentProjectsActualExpenditureBean {
+	
+	private String actual_id;//ID
+	private String group_id;//组ID
+	private String project_code;//项目ID
+	private String project_name;//项目名称
+	private String cost_department;//费用所属部门
+	private String item_classification;//项目分类
+	private String cost_matters;//成本事项
+	private BigDecimal amount_in_original_currency;//价税合计
+	private BigDecimal idle_stock;//呆料
+	private BigDecimal tax_rate;//税率
+	private BigDecimal amount_of_tax;//税额
+	private BigDecimal principal;//本金
+	private String bill_type;//票据类型
+	private String invoice_number;//发票号码
+	private String date_of_occurrence;//申请日期
+	private String purpose_of_occurrence;//用途
+	private String reimbursement_number;//报销工号
+	private String name_of_applicant;//申请人姓名
+	private String applicant_department;//申请人部门
+	private String date_of_application;//申请日期
+	private String project_leader;//项目责任人
+	private int audit_status;//审核状态：1010未审核
+	private String audit_info;//审核备注:'N'
+	public String getActual_id() {
+		return actual_id;
+	}
+	public void setActual_id(String actualId) {
+		actual_id = actualId;
+	}
+	public String getGroup_id() {
+		return group_id;
+	}
+	public void setGroup_id(String groupId) {
+		group_id = groupId;
+	}
+	public String getProject_code() {
+		return project_code;
+	}
+	public void setProject_code(String projectCode) {
+		project_code = projectCode;
+	}
+	public String getProject_name() {
+		return project_name;
+	}
+	public void setProject_name(String projectName) {
+		project_name = projectName;
+	}
+	public String getCost_department() {
+		return cost_department;
+	}
+	public void setCost_department(String costDepartment) {
+		cost_department = costDepartment;
+	}
+	public String getItem_classification() {
+		return item_classification;
+	}
+	public void setItem_classification(String itemClassification) {
+		item_classification = itemClassification;
+	}
+	public String getCost_matters() {
+		return cost_matters;
+	}
+	public void setCost_matters(String costMatters) {
+		cost_matters = costMatters;
+	}
+	public BigDecimal getAmount_in_original_currency() {
+		return amount_in_original_currency;
+	}
+	public void setAmount_in_original_currency(BigDecimal amountInOriginalCurrency) {
+		amount_in_original_currency = amountInOriginalCurrency;
+	}
+	public BigDecimal getIdle_stock() {
+		return idle_stock;
+	}
+	public void setIdle_stock(BigDecimal idleStock) {
+		idle_stock = idleStock;
+	}
+	public BigDecimal getTax_rate() {
+		return tax_rate;
+	}
+	public void setTax_rate(BigDecimal taxRate) {
+		tax_rate = taxRate;
+	}
+	public BigDecimal getAmount_of_tax() {
+		return amount_of_tax;
+	}
+	public void setAmount_of_tax(BigDecimal amountOfTax) {
+		amount_of_tax = amountOfTax;
+	}
+	public BigDecimal getPrincipal() {
+		return principal;
+	}
+	public void setPrincipal(BigDecimal principal) {
+		this.principal = principal;
+	}
+	public String getBill_type() {
+		return bill_type;
+	}
+	public void setBill_type(String billType) {
+		bill_type = billType;
+	}
+	public String getInvoice_number() {
+		return invoice_number;
+	}
+	public void setInvoice_number(String invoiceNumber) {
+		invoice_number = invoiceNumber;
+	}
+	public String getDate_of_occurrence() {
+		return date_of_occurrence;
+	}
+	public void setDate_of_occurrence(String dateOfOccurrence) {
+		date_of_occurrence = dateOfOccurrence;
+	}
+	public String getPurpose_of_occurrence() {
+		return purpose_of_occurrence;
+	}
+	public void setPurpose_of_occurrence(String purposeOfOccurrence) {
+		purpose_of_occurrence = purposeOfOccurrence;
+	}
+	public String getReimbursement_number() {
+		return reimbursement_number;
+	}
+	public void setReimbursement_number(String reimbursementNumber) {
+		reimbursement_number = reimbursementNumber;
+	}
+	public String getName_of_applicant() {
+		return name_of_applicant;
+	}
+	public void setName_of_applicant(String nameOfApplicant) {
+		name_of_applicant = nameOfApplicant;
+	}
+	public String getApplicant_department() {
+		return applicant_department;
+	}
+	public void setApplicant_department(String applicantDepartment) {
+		applicant_department = applicantDepartment;
+	}
+	public String getDate_of_application() {
+		return date_of_application;
+	}
+	public void setDate_of_application(String dateOfApplication) {
+		date_of_application = dateOfApplication;
+	}
+	public String getProject_leader() {
+		return project_leader;
+	}
+	public void setProject_leader(String projectLeader) {
+		project_leader = projectLeader;
+	}
+	public int getAudit_status() {
+		return audit_status;
+	}
+	public void setAudit_status(int auditStatus) {
+		audit_status = auditStatus;
+	}
+	public String getAudit_info() {
+		return audit_info;
+	}
+	public void setAudit_info(String auditInfo) {
+		audit_info = auditInfo;
+	}
+	
+	
+	}

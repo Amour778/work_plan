@@ -1,0 +1,4 @@
+#Wed Dec 26 16:50:09 CST 2018
+eclipse.preferences.version=1
+validator.Checked=WebRoot/WEB-INF/pages/static/module/vue.min.js,WebRoot/WEB-INF/pages/static/module/vue.js,WebRoot/WEB-INF/pages/static/module/index.js,WebRoot/WEB-INF/pages/static/module/notice/notice.js
+validator.Unchecked=
